@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyManagementAPI.Models;
 using PharmacyManagementAPI.Services;
+using PharmacyManagementAPI.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Net;
 
 namespace PharmacyManagementAPI.Controllers
 {
@@ -38,14 +40,27 @@ namespace PharmacyManagementAPI.Controllers
 
         [HttpPost("addPharmacy")]
         //Route("AddPharmacy")]
-        public IActionResult AddPharmacy([FromBody] Pharmacy pharmacy)
+        public IActionResult AddPharmacy([FromBody] PharmacyCreateDTO pharmacyDTO)
         {
-            if (pharmacy == null)
+            if (pharmacyDTO == null)
             {
                 return BadRequest();
             }
-            _service.AddPharmacy(pharmacy);
-            return CreatedAtAction(nameof(GetPharmacyById), new { id = pharmacy.Id }, pharmacy);
+            var pharmacyModel = new Pharmacy
+            {
+                Name = pharmacyDTO.Name,
+                Address = pharmacyDTO.Address,
+                City = pharmacyDTO.City,
+                State = pharmacyDTO.State,
+                Zip = pharmacyDTO.Zip,
+                NumberOfFilledPrescriptions = pharmacyDTO.NumberOfFilledPrescriptions,
+                CreatedDate = pharmacyDTO.CreatedDate,
+                UpdatedDate = DateTime.Now,
+
+            };
+            
+            _service.AddPharmacy(pharmacyModel);
+            return CreatedAtAction(nameof(GetPharmacyById), new { id = pharmacyModel.Id }, pharmacyModel);
         }
 
         [HttpPut("updatePharmacy/{id}")]
