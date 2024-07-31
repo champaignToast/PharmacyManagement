@@ -37,5 +37,19 @@ namespace PharmacyManagementAPI.Tests.Services
             Assert.Equal("PharmacyCat", result.ElementAt(0).Name);
             Assert.Equal("PharmacyDuck", result.ElementAt(1).Name);
         }
+
+        [Fact]
+        public void UpdatePharmacy_ValidPharmacy_UpdatesPharmacy()
+        {
+            // Arrange
+            var pharmacy = new Pharmacy { Id = 1, Name = "PharmacyCat" };
+
+            // Act
+            _service.UpdatePharmacy(pharmacy);
+
+            // Assert
+            _mockRepo.Verify(repo => repo.UpdatePharmacy(pharmacy), Times.Once);
+            _mockRepo.Verify(repo => repo.Save(), Times.Once);
+        }
     }
 }
