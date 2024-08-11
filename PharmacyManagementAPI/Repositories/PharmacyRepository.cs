@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PharmacyManagementAPI.Entities;
 using PharmacyManagementAPI.Models;
 
 namespace PharmacyManagementAPI.Repositories
@@ -12,21 +13,101 @@ namespace PharmacyManagementAPI.Repositories
             _context = context;
         }
 
-        public IEnumerable<Pharmacy> GetAllPharmacies() => _context.Pharmacies.ToList();
-
-        public Pharmacy GetPharmacyById(int id) => _context.Pharmacies.Find(id);
-
-        public void AddPharmacy(Pharmacy pharmacy)
+        public async Task<IEnumerable<PharmacyModel>> GetAllPharmaciesAsync()
         {
-            _context.Pharmacies.Add(pharmacy);
+            var pharmacies = await _context.Pharmacies.ToListAsync();
+            var pharmacyModels = pharmacies.Select(p => new PharmacyModel
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Address = p.Address,
+                City = p.City,
+                State = p.State,
+                Zip = p.Zip,
+                NumberOfFilledPrescriptions = p.NumberOfFilledPrescriptions,
+                CreatedDate = p.CreatedDate,
+                UpdatedDate = p.UpdatedDate
+            });
+
+            return pharmacyModels;
         }
 
-        public void UpdatePharmacy(Pharmacy pharmacy)
+
+        public async Task<PharmacyModel> GetPharmacyByIdAsync(int id)
         {
+            var pharmacy = await _context.Pharmacies.FindAsync(id);
+            if (pharmacy == null)
+            {
+                throw new KeyNotFoundException($"Pharmacy with ID {id} not found.");
+            }
+
+            var pharmacyModel = new PharmacyModel
+            {
+                Id = pharmacy.Id,
+                Name = pharmacy.Name,
+                Address = pharmacy.Address,
+                City = pharmacy.City,
+                State = pharmacy.State,
+                Zip = pharmacy.Zip,
+                NumberOfFilledPrescriptions = pharmacy.NumberOfFilledPrescriptions,
+                CreatedDate = pharmacy.CreatedDate,
+                UpdatedDate = pharmacy.UpdatedDate
+            };
+
+            return pharmacyModel;
+        }
+
+
+
+
+        public async Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacy)
+        {
+            var entity = new Pharmacy
+            {
+                Name = pharmacy.Name,
+                Address = pharmacy.Address,
+                City = pharmacy.City,
+                State = pharmacy.State,
+                Zip = pharmacy.Zip,
+                NumberOfFilledPrescriptions = pharmacy.NumberOfFilledPrescriptions ?? 0,
+                CreatedDate = pharmacy.CreatedDate,
+                UpdatedDate = DateTime.Now
+            };
+
+            _context.Pharmacies.Add(entity);
+            await _context.SaveChangesAsync();
+
             
-            var entity = _context.Pharmacies.Attach(pharmacy);
-            _context.Entry(pharmacy).State = EntityState.Modified;
+            pharmacy.Id = entity.Id;
+
+            return pharmacy;
         }
+
+
+
+        public async Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacy)
+        {
+            var entity = await _context.Pharmacies.FindAsync(pharmacy.Id);
+            if (entity == null)
+            {
+                throw new KeyNotFoundException($"Pharmacy with ID {pharmacy.Id} not found.");
+            }
+
+            entity.Name = pharmacy.Name;
+            entity.Address = pharmacy.Address;
+            entity.City = pharmacy.City;
+            entity.State = pharmacy.State;
+            entity.Zip = pharmacy.Zip;
+            entity.NumberOfFilledPrescriptions = pharmacy.NumberOfFilledPrescriptions ?? 0;
+            entity.CreatedDate = pharmacy.CreatedDate;
+            entity.UpdatedDate = DateTime.Now;
+
+            _context.Entry(entity).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return pharmacy;
+        }
+
 
         public void Save()
         {
@@ -35,4 +116,3 @@ namespace PharmacyManagementAPI.Repositories
     }
 
 }
-//test changes
