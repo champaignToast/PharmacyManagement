@@ -2,9 +2,9 @@
 
 public interface IPharmacyRepository
 {
-    IEnumerable<Pharmacy> GetAllPharmacies();
-    Pharmacy GetPharmacyById(int id);
-    void AddPharmacy(Pharmacy pharmacy);
-    void UpdatePharmacy(Pharmacy pharmacy);
+    Task<IEnumerable<PharmacyModel>> GetAllPharmaciesAsync();
+    Task<PharmacyModel> GetPharmacyByIdAsync(int id);
+    Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacy);
+    Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacy);
     void Save();
 }

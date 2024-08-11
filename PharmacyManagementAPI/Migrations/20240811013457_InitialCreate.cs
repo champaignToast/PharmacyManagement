@@ -5,7 +5,7 @@
 namespace PharmacyManagementAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPharamacies : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

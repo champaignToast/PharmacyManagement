@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PharmacyManagementAPI.Models;
+using PharmacyManagementAPI.Entities;
 
 #nullable disable
 
 namespace PharmacyManagementAPI.Migrations
 {
     [DbContext(typeof(PharmacyContext))]
-    [Migration("20240719152415_AddCreatedDateAndUpdatedDate")]
-    partial class AddCreatedDateAndUpdatedDate
+    [Migration("20240811013457_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

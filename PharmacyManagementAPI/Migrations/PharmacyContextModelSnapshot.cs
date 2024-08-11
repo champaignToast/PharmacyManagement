@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PharmacyManagementAPI.Models;
+using PharmacyManagementAPI.Entities;
 
 #nullable disable
 
@@ -61,7 +61,7 @@ namespace PharmacyManagementAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Pharmacies", (string)null);
+                    b.ToTable("Pharmacies");
                 });
 #pragma warning restore 612, 618
         }

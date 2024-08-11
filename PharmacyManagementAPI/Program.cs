@@ -2,15 +2,20 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PharmacyManagementAPI.Models; 
+using PharmacyManagementAPI.Entities; 
 using PharmacyManagementAPI.Repositories; 
-using PharmacyManagementAPI.Services; 
+using PharmacyManagementAPI.Services;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+     {
+         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+     });
 //Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

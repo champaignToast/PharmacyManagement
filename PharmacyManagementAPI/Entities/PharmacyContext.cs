@@ -1,4 +1,4 @@
-﻿namespace PharmacyManagementAPI.Models
+﻿namespace PharmacyManagementAPI.Entities
 
 {
     using Microsoft.EntityFrameworkCore;

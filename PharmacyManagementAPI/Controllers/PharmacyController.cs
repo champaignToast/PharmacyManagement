@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyManagementAPI.Models;
 using PharmacyManagementAPI.Services;
-using PharmacyManagementAPI.DTOs;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
 
 namespace PharmacyManagementAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class PharmacyController : ControllerBase
     {
@@ -19,18 +16,22 @@ namespace PharmacyManagementAPI.Controllers
         }
 
         [HttpGet]
-        [Route("getAllPharmacies")]
-        public IActionResult GetAllPharmacies()
+        public async Task<ActionResult> GetAllPharmacies()
         {
-            var pharmacies = _service.GetAllPharmacies();
+            var pharmacies = await _service.GetAllPharmaciesAsync();
+
+            if (pharmacies == null || !pharmacies.Any())
+            {
+                return NoContent();
+            }
+
             return Ok(pharmacies);
         }
 
-        [HttpGet("getPharmacy/{id}")]
-        //[Route("getPharmacyById")]
-        public IActionResult GetPharmacyById(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetPharmacyById(int id)
         {
-            var pharmacy = _service.GetPharmacyById(id);
+            var pharmacy = await _service.GetPharmacyByIdAsync(id);
             if (pharmacy == null)
             {
                 return NotFound();
@@ -38,55 +39,29 @@ namespace PharmacyManagementAPI.Controllers
             return Ok(pharmacy);
         }
 
-        [HttpPost("addPharmacy")]
-        //Route("AddPharmacy")]
-        public IActionResult AddPharmacy([FromBody] PharmacyCreateDTO pharmacyDTO)
+        [HttpPost()]
+        public async Task<ActionResult> AddPharmacy([FromBody] PharmacyModel pharmacy)
         {
-            if (pharmacyDTO == null)
+            if (pharmacy == null)
             {
                 return BadRequest();
             }
-            var pharmacyModel = new Pharmacy
-            {
-                Name = pharmacyDTO.Name,
-                Address = pharmacyDTO.Address,
-                City = pharmacyDTO.City,
-                State = pharmacyDTO.State,
-                Zip = pharmacyDTO.Zip,
-                NumberOfFilledPrescriptions = pharmacyDTO.NumberOfFilledPrescriptions,
-                CreatedDate = pharmacyDTO.CreatedDate,
-                UpdatedDate = DateTime.Now,
 
-            };
-            
-            _service.AddPharmacy(pharmacyModel);
-            return CreatedAtAction(nameof(GetPharmacyById), new { id = pharmacyModel.Id }, pharmacyModel);
+            var addedPharmacy = await _service.AddPharmacyAsync(pharmacy);
+            return CreatedAtAction(nameof(GetPharmacyById), new { id = addedPharmacy.Id }, addedPharmacy);
         }
 
-        [HttpPut("updatePharmacy/{id}")]
-        //[Route("UpdatePharmacy")]
-        public IActionResult UpdatePharmacy(int id, [FromBody] Pharmacy pharmacy)
+        [HttpPut]
+        public async Task<ActionResult> UpdatePharmacy([FromBody] PharmacyModel pharmacy)
         {
-            if (pharmacy == null || pharmacy.Id != id)
-            {
-                return BadRequest();
-            }
-            var existingPharmacy = _service.GetPharmacyById(id);
-            if (existingPharmacy == null)
+            var updatedPharmacy = await _service.UpdatePharmacyAsync(pharmacy);
+
+            if (updatedPharmacy == null)
             {
                 return NotFound();
             }
-            existingPharmacy.Name = pharmacy.Name;
-            existingPharmacy.Address = pharmacy.Address;
-            existingPharmacy.City = pharmacy.City;
-            existingPharmacy.State = pharmacy.State;
-            existingPharmacy.Zip = pharmacy.Zip;
-            existingPharmacy.NumberOfFilledPrescriptions = pharmacy.NumberOfFilledPrescriptions;
-            existingPharmacy.CreatedDate = pharmacy.CreatedDate; 
-            existingPharmacy.UpdatedDate = DateTime.Now;
-            _service.UpdatePharmacy(existingPharmacy);
+
             return NoContent();
         }
     }
-
 }
