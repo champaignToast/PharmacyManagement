@@ -1,4 +1,4 @@
-﻿namespace PharmacyManagementAPI.Models;
+﻿namespace PharmacyManagementAPI.Entities;
 public static class DbInitializer
 {
     public static void Initialize(PharmacyContext context)

@@ -1,33 +1,40 @@
-﻿using PharmacyManagementAPI.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using PharmacyManagementAPI.Models;
+using PharmacyManagementAPI.Repositories;
+using AutoMapper;
 
 namespace PharmacyManagementAPI.Services
 {
     public class PharmacyService : IPharmacyService
     {
         private readonly IPharmacyRepository _repository;
+        private readonly IMapper _mapper;
 
-        public PharmacyService(IPharmacyRepository repository)
+        public PharmacyService(IPharmacyRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
-        public IEnumerable<Pharmacy> GetAllPharmacies() => _repository.GetAllPharmacies();
-
-        public Pharmacy GetPharmacyById(int id) => _repository.GetPharmacyById(id);
-
-        public void AddPharmacy(Pharmacy pharmacy)
+        public async Task<IEnumerable<PharmacyModel>> GetAllPharmaciesAsync()
         {
-            _repository.AddPharmacy(pharmacy);
-            _repository.Save();
+            return await _repository.GetAllPharmaciesAsync();
         }
 
-        public void UpdatePharmacy(Pharmacy pharmacy)
+        public async Task<PharmacyModel> GetPharmacyByIdAsync(int id)
         {
-            _repository.UpdatePharmacy(pharmacy);
-            _repository.Save();
+            return await _repository.GetPharmacyByIdAsync(id);
         }
 
+        public async Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacyModel)
+        {
+            return await _repository.AddPharmacyAsync(pharmacyModel);
+        }
 
+        public async Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacyModel)
+        {
+            return await _repository.UpdatePharmacyAsync(pharmacyModel);
+        }
     }
-
 }
