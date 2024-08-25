@@ -1,68 +1,40 @@
-﻿using PharmacyManagementAPI.Entities;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using PharmacyManagementAPI.Models;
+using PharmacyManagementAPI.Repositories;
+using AutoMapper;
 
 namespace PharmacyManagementAPI.Services
 {
     public class PharmacyService : IPharmacyService
     {
         private readonly IPharmacyRepository _repository;
+        private readonly IMapper _mapper;
 
-        public PharmacyService(IPharmacyRepository repository)
+        public PharmacyService(IPharmacyRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<PharmacyModel>> GetAllPharmaciesAsync()
         {
-            var pharmacies = await _repository.GetAllPharmaciesAsync();
-            return pharmacies;
+            return await _repository.GetAllPharmaciesAsync();
         }
 
         public async Task<PharmacyModel> GetPharmacyByIdAsync(int id)
         {
-            var pharmacy = await _repository.GetPharmacyByIdAsync(id);
-            return pharmacy;
+            return await _repository.GetPharmacyByIdAsync(id);
         }
 
         public async Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacyModel)
         {
-            var pharmacy = new PharmacyModel
-            {
-                Name = pharmacyModel.Name,
-                Address = pharmacyModel.Address,
-                City = pharmacyModel.City,
-                State = pharmacyModel.State,
-                Zip = pharmacyModel.Zip,
-                NumberOfFilledPrescriptions = pharmacyModel.NumberOfFilledPrescriptions,
-                CreatedDate = pharmacyModel.CreatedDate,
-                UpdatedDate = DateTime.Now,
-            };
-
-            await _repository.AddPharmacyAsync(pharmacy);
-            _repository.Save();
-            return pharmacy;
+            return await _repository.AddPharmacyAsync(pharmacyModel);
         }
 
         public async Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacyModel)
         {
-            var existingPharmacy = await _repository.GetPharmacyByIdAsync(pharmacyModel.Id ?? 0);
-            if (existingPharmacy == null)
-            {
-                return null;
-            }
-
-            existingPharmacy.Name = pharmacyModel.Name;
-            existingPharmacy.Address = pharmacyModel.Address;
-            existingPharmacy.City = pharmacyModel.City;
-            existingPharmacy.State = pharmacyModel.State;
-            existingPharmacy.Zip = pharmacyModel.Zip;
-            existingPharmacy.NumberOfFilledPrescriptions = pharmacyModel.NumberOfFilledPrescriptions;
-            existingPharmacy.CreatedDate = pharmacyModel.CreatedDate;
-            existingPharmacy.UpdatedDate = DateTime.Now;
-
-            await _repository.UpdatePharmacyAsync(existingPharmacy);
-            _repository.Save();
-            return existingPharmacy;
+            return await _repository.UpdatePharmacyAsync(pharmacyModel);
         }
     }
 }

@@ -1,10 +1,15 @@
-﻿using PharmacyManagementAPI.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using PharmacyManagementAPI.Models;
 
-public interface IPharmacyRepository
+namespace PharmacyManagementAPI.Repositories
 {
-    Task<IEnumerable<PharmacyModel>> GetAllPharmaciesAsync();
-    Task<PharmacyModel> GetPharmacyByIdAsync(int id);
-    Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacy);
-    Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacy);
-    void Save();
+    public interface IPharmacyRepository
+    {
+        Task<IEnumerable<PharmacyModel>> GetAllPharmaciesAsync();
+        Task<PharmacyModel> GetPharmacyByIdAsync(int id);
+        Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacyModel);
+        Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacyModel);
+        void Save();
+    }
 }

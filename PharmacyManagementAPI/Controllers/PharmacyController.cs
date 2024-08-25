@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyManagementAPI.Models;
 using PharmacyManagementAPI.Services;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PharmacyManagementAPI.Controllers
 {
@@ -18,50 +21,81 @@ namespace PharmacyManagementAPI.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAllPharmacies()
         {
-            var pharmacies = await _service.GetAllPharmaciesAsync();
-
-            if (pharmacies == null || !pharmacies.Any())
+            try
             {
-                return NoContent();
-            }
+                var pharmacies = await _service.GetAllPharmaciesAsync();
 
-            return Ok(pharmacies);
+                if (pharmacies == null || !pharmacies.Any())
+                {
+                    return NoContent();
+                }
+
+                return Ok(pharmacies);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetPharmacyById(int id)
         {
-            var pharmacy = await _service.GetPharmacyByIdAsync(id);
-            if (pharmacy == null)
+            try
             {
-                return NotFound();
+                var pharmacy = await _service.GetPharmacyByIdAsync(id);
+                return Ok(pharmacy);
             }
-            return Ok(pharmacy);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        [HttpPost()]
+        [HttpPost]
         public async Task<ActionResult> AddPharmacy([FromBody] PharmacyModel pharmacy)
         {
             if (pharmacy == null)
             {
-                return BadRequest();
+                return BadRequest("Pharmacy data is null.");
             }
 
-            var addedPharmacy = await _service.AddPharmacyAsync(pharmacy);
-            return CreatedAtAction(nameof(GetPharmacyById), new { id = addedPharmacy.Id }, addedPharmacy);
+            try
+            {
+                var addedPharmacy = await _service.AddPharmacyAsync(pharmacy);
+                return CreatedAtAction(nameof(GetPharmacyById), new { id = addedPharmacy.Id }, addedPharmacy);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPut]
         public async Task<ActionResult> UpdatePharmacy([FromBody] PharmacyModel pharmacy)
         {
-            var updatedPharmacy = await _service.UpdatePharmacyAsync(pharmacy);
-
-            if (updatedPharmacy == null)
+            if (pharmacy == null)
             {
-                return NotFound();
+                return BadRequest("Pharmacy data is null.");
             }
 
-            return NoContent();
+            try
+            {
+                var updatedPharmacy = await _service.UpdatePharmacyAsync(pharmacy);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

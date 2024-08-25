@@ -1,118 +1,59 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PharmacyManagementAPI.Entities;
 using PharmacyManagementAPI.Models;
+using AutoMapper;
 
 namespace PharmacyManagementAPI.Repositories
 {
     public class PharmacyRepository : IPharmacyRepository
     {
         private readonly PharmacyContext _context;
+        private readonly IMapper _mapper;
 
-        public PharmacyRepository(PharmacyContext context)
+        public PharmacyRepository(PharmacyContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<PharmacyModel>> GetAllPharmaciesAsync()
         {
-            var pharmacies = await _context.Pharmacies.ToListAsync();
-            var pharmacyModels = pharmacies.Select(p => new PharmacyModel
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Address = p.Address,
-                City = p.City,
-                State = p.State,
-                Zip = p.Zip,
-                NumberOfFilledPrescriptions = p.NumberOfFilledPrescriptions,
-                CreatedDate = p.CreatedDate,
-                UpdatedDate = p.UpdatedDate
-            });
-
-            return pharmacyModels;
+            var entities = await _context.Pharmacies.ToListAsync();
+            return _mapper.Map<IEnumerable<PharmacyModel>>(entities);
         }
-
 
         public async Task<PharmacyModel> GetPharmacyByIdAsync(int id)
         {
-            var pharmacy = await _context.Pharmacies.FindAsync(id);
-            if (pharmacy == null)
-            {
-                throw new KeyNotFoundException($"Pharmacy with ID {id} not found.");
-            }
-
-            var pharmacyModel = new PharmacyModel
-            {
-                Id = pharmacy.Id,
-                Name = pharmacy.Name,
-                Address = pharmacy.Address,
-                City = pharmacy.City,
-                State = pharmacy.State,
-                Zip = pharmacy.Zip,
-                NumberOfFilledPrescriptions = pharmacy.NumberOfFilledPrescriptions,
-                CreatedDate = pharmacy.CreatedDate,
-                UpdatedDate = pharmacy.UpdatedDate
-            };
-
-            return pharmacyModel;
+            var entity = await _context.Pharmacies.FindAsync(id);
+            return _mapper.Map<PharmacyModel>(entity);
         }
 
-
-
-
-        public async Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacy)
+        public async Task<PharmacyModel> AddPharmacyAsync(PharmacyModel pharmacyModel)
         {
-            var entity = new Pharmacy
-            {
-                Name = pharmacy.Name,
-                Address = pharmacy.Address,
-                City = pharmacy.City,
-                State = pharmacy.State,
-                Zip = pharmacy.Zip,
-                NumberOfFilledPrescriptions = pharmacy.NumberOfFilledPrescriptions ?? 0,
-                CreatedDate = pharmacy.CreatedDate,
-                UpdatedDate = DateTime.Now
-            };
-
+            var entity = _mapper.Map<Pharmacy>(pharmacyModel);
             _context.Pharmacies.Add(entity);
             await _context.SaveChangesAsync();
-
-            
-            pharmacy.Id = entity.Id;
-
-            return pharmacy;
+            return _mapper.Map<PharmacyModel>(entity);
         }
 
-
-
-        public async Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacy)
+        public async Task<PharmacyModel> UpdatePharmacyAsync(PharmacyModel pharmacyModel)
         {
-            var entity = await _context.Pharmacies.FindAsync(pharmacy.Id);
+            var entity = await _context.Pharmacies.FindAsync(pharmacyModel.Id);
             if (entity == null)
             {
-                throw new KeyNotFoundException($"Pharmacy with ID {pharmacy.Id} not found.");
+                throw new KeyNotFoundException($"Pharmacy with ID {pharmacyModel.Id} not found.");
             }
-
-            entity.Name = pharmacy.Name;
-            entity.Address = pharmacy.Address;
-            entity.City = pharmacy.City;
-            entity.State = pharmacy.State;
-            entity.Zip = pharmacy.Zip;
-            entity.NumberOfFilledPrescriptions = pharmacy.NumberOfFilledPrescriptions ?? 0;
-            entity.CreatedDate = pharmacy.CreatedDate;
-            entity.UpdatedDate = DateTime.Now;
-
+            _mapper.Map(pharmacyModel, entity);
             _context.Entry(entity).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
-            return pharmacy;
+            return _mapper.Map<PharmacyModel>(entity);
         }
-
 
         public void Save()
         {
             _context.SaveChanges();
         }
     }
-
 }
